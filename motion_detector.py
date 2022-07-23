@@ -1,3 +1,5 @@
+"""Please read README.md"""
+
 import cv2
 from datetime import datetime
 import pandas as pd
@@ -79,10 +81,13 @@ while True:
         #Creates a full list of the status of each iteration for calculating time and generating final graph
         status_list.append(status)
 
+        #Optimized for memory usage so that only last 2 instances of status are tracked
+        status_list = status_list[-2:]
+
         #Determines if the status is changing in the status list
         if status_list[-1] == 1 and status_list[-2] == 0:
             times.append(datetime.now())
-        if status_list[-1] == 1 and status_list[-2] == 0:
+        if status_list[-1] == 0 and status_list[-2] == 1:
             times.append(datetime.now())
 
     #Displays all 4 Frames to the screen
@@ -94,9 +99,6 @@ while True:
     #Waits 1 millisecond capturing if there is a key press
     key = cv2.waitKey(1)
 
-    '''print(gray)
-    print(delta_frame)
-    print(thresh_frame)'''
 
     #Quits the while loop if keypress 'q'
     if key == ord('q'):
@@ -109,17 +111,19 @@ while True:
 #Prints the number of iterations of the while loop
 print("Number of iterations" + str(a))
 
+#Displays all time stamps when status changes
 print(times)
 
 #Steps through the times list and appends the time stamps to the data frame
 #step of 2 so that : i = start times and i+1 = end times
-
 for i in range(0, len(times), 2):
     df=df.append({"Start":times[i], "End":times[i+1]}, ignore_index=True)
 
+#Saves the times data to a csv file
+df.to_csv("output/times/Times.csv")
 
-df.to_csv("output/Times.csv")
-
+#Closes the video camera functionality
 video.release()
 
+#Destroys all the windows from open_cv
 cv2.destroyAllWindows()
